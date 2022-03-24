@@ -7,9 +7,9 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.util.*
 
-class ProducerDemo
+class ProducerDemoWithKey
 
-private val logger = LoggerFactory.getLogger(ProducerDemo::class.java.simpleName)
+private val logger = LoggerFactory.getLogger(ProducerDemoWithKey::class.java.simpleName)
 
 fun main() {
     val properties = Properties()
@@ -19,12 +19,14 @@ fun main() {
 
     (1..10).forEach {
         val producer = KafkaProducer<String, String>(properties)
-        val record = ProducerRecord<String, String>("demo_java", "hello world")
+        val record = ProducerRecord<String, String>("demo_java", "key $it", "hello world $it")
 
         producer.send(record) { metadata, exception ->
             if (exception == null) {
                 logger.info(
-                    StringBuffer().appendLine("Topic: ${metadata.topic()}").appendLine("Partition: ${metadata.partition()}").appendLine("Offset: ${metadata.offset()}")
+                    StringBuffer().appendLine("Topic: ${metadata.topic()}")
+                        .appendLine("Partition: ${metadata.partition()}")
+                        .appendLine("Offset: ${metadata.offset()}")
                         .appendLine("Timestamp: ${Instant.ofEpochMilli(metadata.timestamp()).atOffset(ZoneOffset.ofHours(8))}").toString()
                 )
             } else {
